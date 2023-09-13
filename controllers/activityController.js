@@ -1,56 +1,93 @@
 const { Activity } = require("../models");
 
-exports.index = (req, res) => {
-  Activity.findAll().then((activity) => {
-    res.send({
-      status: "Success",
-      message: "Success",
-      data: activity,
-    });
-  });
+const sendResponse = (res, code, status, message, data = {}) => {
+  res.status(code).send({ status, message, data });
 };
 
-exports.create = (req, res) => {
-  Activity.create({
-    title: req.body.title,
-    email: req.body.email,
-  }).then((activity) => {
-    res.send({
-      status: "Success",
-      message: "Success",
-      data: activity,
-    });
-  });
+exports.index = async (req, res) => {
+  try {
+    const activities = await Activity.findAll();
+    sendResponse(res, 200, "Success", "Success", activities);
+  } catch (error) {
+    sendResponse(res, 500, "Internal Server Error", error.message);
+  }
 };
 
-exports.show = (req, res) => {
-  Activity.findByPk(req.params.id).then((activity) => {
-    res.send({
-      status: "Success",
-      message: "Success",
-      data: activity,
-    });
-  });
-};
-
-exports.update = (req, res) => {
-  Activity.update(req.body, { where: { id: req.params.id } }).then(
-    (activity) => {
-      res.send({
-        status: "Success",
-        message: "Success",
-        data: activity,
-      });
+exports.create = async (req, res) => {
+  try {
+    if (!req.body.title) {
+      sendResponse(res, 400, "Bad Request", "title cannot be null");
+    } else {
+      const activity = await Activity.create(req.body);
+      sendResponse(res, 201, "Success", "Success", activity);
     }
-  );
+  } catch (error) {
+    sendResponse(res, 500, "Internal Server Error", error.message);
+  }
 };
 
-exports.delete = (req, res) => {
-  Activity.destroy({ where: { id: req.params.id } }).then((activity) => {
-    res.send({
-      status: "Success",
-      message: "Success",
-      data: activity,
-    });
-  });
+exports.show = async (req, res) => {
+  try {
+    const activity = await Activity.findByPk(req.params.id);
+    if (!activity) {
+      sendResponse(
+        res,
+        404,
+        "Not Found",
+        `Activity with ID ${req.params.id} Not Found`
+      );
+    } else {
+      sendResponse(res, 200, "Success", "Success", activity);
+    }
+  } catch (error) {
+    sendResponse(res, 500, "Internal Server Error", error.message);
+  }
+};
+
+exports.update = async (req, res) => {
+  try {
+    const activity = await Activity.findByPk(req.params.id);
+    if (!activity) {
+      sendResponse(
+        res,
+        404,
+        "Not Found",
+        `Activity with ID ${req.params.id} Not Found`
+      );
+    } else if (!req.body) {
+      sendResponse(res, 400, "Bad Request", "title cannot be null");
+    } else {
+      await Activity.update(req.body, {
+        where: { id: req.params.id },
+      });
+      sendResponse(
+        res,
+        200,
+        "Success",
+        "Success",
+        await Activity.findByPk(req.params.id)
+      );
+    }
+  } catch (error) {
+    sendResponse(res, 500, "Internal Server Error", error.message);
+  }
+};
+
+exports.delete = async (req, res) => {
+  try {
+    const activity = await Activity.findByPk(req.params.id);
+    if (!activity) {
+      sendResponse(
+        res,
+        404,
+        "Not Found",
+        `Activity with ID ${req.params.id} Not Found`
+      );
+    } else {
+      await Activity.destroy({ where: { id: req.params.id } });
+      sendResponse(res, 200, "Success", "Success", {});
+    }
+  } catch (error) {
+    sendResponse(res, 500, "Internal Server Error", error.message);
+  }
 };

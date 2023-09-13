@@ -27,7 +27,7 @@ app.route("/todo-items").get(todoController.index).post(todoController.create);
 app
   .route("/todo-items/:id")
   .get(todoController.show)
-  .put(todoController.update)
+  .patch(todoController.update)
   .delete(todoController.delete);
 
 // Activity Routes
@@ -39,10 +39,9 @@ app
 app
   .route("/activity-groups/:id")
   .get(activityController.show)
-  .put(activityController.update)
+  .patch(activityController.update)
   .delete(activityController.delete);
 
-// Start the server after authenticating the database connection
 app.listen(port, () => {
   console.log("Server running on port " + port);
 });
