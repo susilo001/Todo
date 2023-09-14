@@ -12,7 +12,7 @@ fi
 table_exists() {
   local table_name="$1"
   local output=$(npx sequelize-cli db:migrate:status)
-  
+
   if echo "$output" | grep -q " $table_name "; then
     return 0  # Table exists
   else
@@ -26,8 +26,6 @@ if table_exists "$TABLE_NAME"; then
 else
   echo "Table '$TABLE_NAME' does not exist. Running migrations..."
   npm run migrate:up
-  # Run seeders
-  npm run migrate:seed
 fi
 
 # Start the server

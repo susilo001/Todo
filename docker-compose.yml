@@ -3,11 +3,12 @@ services:
   web:
     build: .
     container_name: web
-    command: npm run dev
     ports:
       - "3030:3030"
     volumes:
       - .:/app
+      - ./nginx/nginx.conf:/etc/nginx/conf.d
+      - ./supervisord.conf:/etc/supervisor/conf.d/supervisord.conf
     environment:
       - MYSQL_HOST=db
       - MYSQL_PORT=3306
